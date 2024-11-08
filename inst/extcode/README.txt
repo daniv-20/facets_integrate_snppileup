@@ -26,6 +26,11 @@ when htslib is available systemwide, or
 
 when it is installed locally and path is the location where it is available.
 
+/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/include/htslib
+
+g++ -std=c++11 -I/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/include snp-pileup-rev.cpp -L/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/libs -lhts -Wl,-rpath=/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/libs -o snp-pileup-rev
+
+~/FACETS/facets_integrate_snppileup/inst/extcode
 
 Usage
 -----
