@@ -5,3 +5,8 @@ src/symbols.rds
 .Rproj.user
 .Rhistory
 facets.Rproj
+
+test
+snp-pileup
+test-pileup
+snp-pileup-old
