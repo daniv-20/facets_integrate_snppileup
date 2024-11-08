@@ -1,0 +1,2 @@
+useDynLib(link2Rhtslib)
+exportPattern("^[[:alpha:]]+")

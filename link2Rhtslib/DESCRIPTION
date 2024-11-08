@@ -1,0 +1,13 @@
+Package: link2Rhtslib
+Type: Package
+Title: link to a shared library
+Version: 0.99.2
+Date: 2024-10-31
+Author: Venkatraman Seshan
+Maintainer: Venkatraman E. Seshan <seshanv@mskcc.org>
+Description: Link to routine in libhts library in Rhtslib package to confirm successful linkage. (Modified from Nathaniel Hayden <nhayden@fredhutch.org>)
+License: GPL (>= 2)
+LinkingTo: Rhtslib, zlibbioc
+SystemRequirements: GNU make
+NeedsCompilation: yes
+Packaged: 2024-11-01 00:21:56 UTC; venkat
