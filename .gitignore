@@ -10,3 +10,5 @@ test
 snp-pileup
 test-pileup
 snp-pileup-old
+
+00-All.vcf.gz
