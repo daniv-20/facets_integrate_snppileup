@@ -31,6 +31,13 @@ when it is installed locally and path is the location where it is available.
 g++ -std=c++11 -I/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/include snp-pileup-rev.cpp -L/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/libs -lhts -Wl,-rpath=/home/nfs/vaithid1/R/x86_64-pc-linux-gnu-library/4.4/Rhtslib/libs -o snp-pileup-rev
 
 ~/FACETS/facets_integrate_snppileup/inst/extcode
+ 
+Venkat's vers
+g++ -std=c++11 -I/home/nfs/seshanv/pypileup/tmpsam/new/htslib-1.7/ snp-pileup.cpp -L/home/nfs/seshanv/pypileup/tmpsam/new/htslib-1.7/ -lhts -Wl,-rpath=/home/nfs/seshanv/pypileup/tmpsam/new/htslib-1.7/ -o snp-pileup2
+
+My vers
+g++ -std=c++11 -I/home/nfs/vaithid1/FACETS/facets_integrate_snppileup/htslib/htslib-1.21/htslib snp-pileup-rev.cpp -L/home/nfs/vaithid1/FACETS/facets_integrate_snppileup/htslib/htslib-1.21/htslib -lhts -Wl,-rpath=/home/nfs/vaithid1/FACETS/facets_integrate_snppileup/htslib/htslib-1.21/htslib -o snp-pileup
+
 
 Usage
 -----
