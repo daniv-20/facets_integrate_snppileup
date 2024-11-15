@@ -1,0 +1,8 @@
+# Add include path for Rhtslib headers
+PKG_CPPFLAGS += -I"C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include"
+
+# Add library path for Rhtslib and link to libhts
+PKG_LIBS += -L"C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/lib" -lhts
+
+# Compiler optimization flags
+CXXFLAGS += -O2 -Wall

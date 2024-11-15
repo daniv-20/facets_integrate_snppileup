@@ -16,3 +16,4 @@ snp-pileup-old
 *.bam
 *.bai
 *.csv
+*.vcf
