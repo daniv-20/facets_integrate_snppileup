@@ -1,3 +1,4 @@
+#include <Rcpp.h>
 #include "snp-pileup-rev.h"
 #include <iostream>
 #include <cstring>
@@ -6,12 +7,15 @@
 #include <cstdio>  // For printf, FILE
 #include <sstream>
 #include <ctime>
+#include <htslib/synced_bcf_reader.h>
 #include <htslib/sam.h>
 #include <htslib/bgzf.h>
 #include <htslib/vcf.h>
 #include <htslib/hts.h>
 
 // Define the arguments structure
+#ifndef SNP_PILEUP_REV_H_DEFINED
+#define SNP_PILEUP_REV_H_DEFINED
 struct arguments {
   std::vector<std::string> args;
   bool count_orphans = false;
@@ -22,51 +26,44 @@ struct arguments {
   std::vector<int> min_read_counts;
   int max_depth = 4000;
   int rflag_filter = BAM_FUNMAP | BAM_FSECONDARY | BAM_FQCFAIL | BAM_FDUP;
-  void (*outFunc)(arguments, std::string, FILE *) = print_output;
+  void (*outFunc)(arguments, std::string, FILE *) = nullptr;
   bool progress = false;
   int pseudo_snps = 0;
   bool verbose = false;
-  BGZF *gzippedPointer = nullptr;
+  BGZF* gzippedPointer = nullptr; // Added
 };
-
-// Function prototypes
-void print_output(arguments arguments, std::string str, FILE *fp);
-void gzip_output(arguments arguments, std::string str, FILE *fp);
-int program_main(arguments arguments);
-void parse_arguments(int argc, char **argv, arguments &args);
-uint64_t get_snp_count(char *file);
-inline bool ends_with(std::string const &value, std::string const &ending);
-int mplp_func(void *data, bam1_t *b);
-int vcf_chr_to_bam(char *chromosome, char **bam_chrs, int32_t n_targets);
+#endif
 
 // Parse arguments from R inputs
-void parse_arguments(std::vector<std::string> input_args, arguments &args) {
-  if (input_args.size() < 3) {
+// Argument parser
+void parse_arguments(const std::vector<std::string>& input_args, arguments& args) {
+  if (input_args.size() < 2) {
     Rcpp::stop("Usage: <vcf file> <output file> <sequence files...>");
   }
   
   for (size_t i = 0; i < input_args.size(); ++i) {
-    if (input_args[i] == "--count-orphans" || input_args[i] == "-A") {
+    const std::string& arg = input_args[i];
+    if (arg == "--count-orphans" || arg == "-A") {
       args.count_orphans = true;
-    } else if (input_args[i] == "--gzip" || input_args[i] == "-g") {
+    } else if (arg == "--gzip" || arg == "-g") {
       args.gzipped = true;
-    } else if (input_args[i] == "--ignore-overlaps" || input_args[i] == "-x") {
+    } else if (arg == "--ignore-overlaps" || arg == "-x") {
       args.ignore_overlaps = true;
-    } else if (input_args[i] == "--min-base-quality" || input_args[i] == "-Q") {
-      if (i + 1 < input_args.size()) {
-        args.min_base_quality = std::stoi(input_args[++i]);
+    } else if (arg == "--min-base-quality" || arg == "-Q") {
+      if (++i < input_args.size()) {
+        args.min_base_quality = std::stoi(input_args[i]);
       } else {
         Rcpp::stop("Missing value for --min-base-quality");
       }
-    } else if (input_args[i] == "--min-map-quality" || input_args[i] == "-q") {
-      if (i + 1 < input_args.size()) {
-        args.min_map_quality = std::stoi(input_args[++i]);
+    } else if (arg == "--min-map-quality" || arg == "-q") {
+      if (++i < input_args.size()) {
+        args.min_map_quality = std::stoi(input_args[i]);
       } else {
         Rcpp::stop("Missing value for --min-map-quality");
       }
-    } else if (input_args[i] == "--min-read-counts" || input_args[i] == "-r") {
-      if (i + 1 < input_args.size()) {
-        std::stringstream ss(input_args[++i]);
+    } else if (arg == "--min-read-counts" || arg == "-r") {
+      if (++i < input_args.size()) {
+        std::stringstream ss(input_args[i]);
         std::string token;
         while (std::getline(ss, token, ',')) {
           args.min_read_counts.push_back(std::stoi(token));
@@ -74,25 +71,24 @@ void parse_arguments(std::vector<std::string> input_args, arguments &args) {
       } else {
         Rcpp::stop("Missing value for --min-read-counts");
       }
-    } else if (input_args[i] == "--max-depth" || input_args[i] == "-d") {
-      if (i + 1 < input_args.size()) {
-        args.max_depth = std::stoi(input_args[++i]);
+    } else if (arg == "--max-depth" || arg == "-d") {
+      if (++i < input_args.size()) {
+        args.max_depth = std::stoi(input_args[i]);
       } else {
         Rcpp::stop("Missing value for --max-depth");
       }
-    } else if (input_args[i] == "--progress" || input_args[i] == "-p") {
+    } else if (arg == "--progress" || arg == "-p") {
       args.progress = true;
-    } else if (input_args[i] == "--pseudo-snps" || input_args[i] == "-P") {
-      if (i + 1 < input_args.size()) {
-        args.pseudo_snps = std::stoi(input_args[++i]);
+    } else if (arg == "--pseudo-snps" || arg == "-P") {
+      if (++i < input_args.size()) {
+        args.pseudo_snps = std::stoi(input_args[i]);
       } else {
         Rcpp::stop("Missing value for --pseudo-snps");
       }
-    } else if (input_args[i] == "--verbose" || input_args[i] == "-v") {
+    } else if (arg == "--verbose" || arg == "-v") {
       args.verbose = true;
     } else {
-      // Assume these are file arguments
-      args.args.push_back(input_args[i]);
+      args.args.push_back(arg);
     }
   }
   
@@ -100,6 +96,7 @@ void parse_arguments(std::vector<std::string> input_args, arguments &args) {
     Rcpp::stop("Error: Must provide at least a VCF file and an output file.");
   }
 }
+
 
 // Prints plain output to a file
 void print_output(arguments arguments, std::string str, FILE *fp) {
@@ -229,27 +226,6 @@ uint64_t get_snp_count(char *file)
     return count;
 }
 
-void print_output(arguments arguments, string str, FILE *fp)
-{
-    fputs(str.c_str(), fp);
-}
-
-void gzip_output(arguments arguments, string str, FILE *fp)
-{
-    if (bgzf_write(arguments.gzippedPointer, str.c_str(), str.length()) < 0)
-    {
-        printf("failed to write to file, terminating.\n");
-        exit(1);
-    }
-}
-
-inline bool ends_with(std::string const &value, std::string const &ending)
-{
-    if (ending.size() > value.size())
-        return false;
-    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-}
-
 int program_main(arguments arguments)
 {
     clock_t start = clock();
@@ -265,23 +241,21 @@ int program_main(arguments arguments)
     struct arguments *conf = &arguments;
     hts_verbose = 1;
 
-    // load vcf file
+    // Load VCF file
     bcf_srs_t *vcfReader = bcf_sr_init();
-    if (!bcf_sr_add_reader(vcfReader, arguments.args[0]))
-    {
-        printf("Failed to read VCF file: %s\n", bcf_sr_strerror(vcfReader->errnum));
-        return 1;
+    if (!bcf_sr_add_reader(vcfReader, arguments.args[0].c_str())) {
+      std::cerr << "Failed to read VCF file: " << arguments.args[0]
+                << " (" << bcf_sr_strerror(vcfReader->errnum) << ")" << std::endl;
+      bcf_sr_destroy(vcfReader); // Clean up in case of failure
+      return 1;
     }
     bcf_hdr_t *vcfHdr = vcfReader->readers[0].header;
-
+    
     uint64_t count = 0;
-    if (arguments.progress)
-    {
-        printf("Calculating SNP count...");
-        cout.flush();
-        count = get_snp_count(arguments.args[0]);
-        printf("done.\n");
-        cout.flush();
+    if (arguments.progress) {
+      std::cout << "Calculating SNP count..." << std::flush;
+      count = get_snp_count(const_cast<char*>(arguments.args[0].c_str()));
+      std::cout << "done." << std::endl;
     }
 
     // construct data to pass to pileup engine
@@ -292,14 +266,28 @@ int program_main(arguments arguments)
         data[i] = (mplp_aux_t *)calloc(1, sizeof(mplp_aux_t));
 
         // open file
-        hFILE *hfp = hopen(arguments.args[i + 2], "r");
-        htsFormat fmt;
-
-        if (!hfp)
-        {
-            printf("Failed to read sequence file %s (%s).\n", arguments.args[i + 2], strerror(errno));
-            return 1;
+        hFILE *hfp = hopen(arguments.args[i + 2].c_str(), "r");
+        if (!hfp) {
+          std::cerr << "Failed to open file: " << arguments.args[i + 2]
+                    << " (" << strerror(errno) << ")" << std::endl;
+          return 1;
         }
+        
+        htsFormat fmt;
+        int detect_status = hts_detect_format(hfp, &fmt);
+        if (detect_status < 0) {
+          std::cerr << "Failed to detect format for file: " << arguments.args[i + 2] << std::endl;
+          hclose(hfp); // Clean up the file handle
+          return 1;
+        }
+
+        if (!hfp) {
+          std::cerr << "Failed to read sequence file: " 
+                    << arguments.args[i + 2] << " (" << strerror(errno) << ")" 
+                    << std::endl;
+          return 1;
+        }
+        
 
         hts_detect_format(hfp, &fmt);
 
@@ -308,13 +296,15 @@ int program_main(arguments arguments)
             printf("Detected format for file %d: %s\n", i + 1, hts_format_description(&fmt));
         }
 
-        data[i]->fp = hts_hopen(hfp, arguments.args[i + 2], "rb");
-        if (!data[i]->fp)
-        {
-            // couldn't open file, laugh at user
-            printf("Couldn't open sequence file %s! (%s)\n", arguments.args[i + 2], strerror(errno));
-            return 1;
+        data[i]->fp = hts_hopen(hfp, arguments.args[i + 2].c_str(), "rb");
+        if (!data[i]->fp) {
+          // Error handling: Couldn't open the file
+          std::cerr << "Couldn't open sequence file: " << arguments.args[i + 2]
+                    << " (" << strerror(errno) << ")" << std::endl;
+          hclose(hfp); // Clean up the file handle
+          return 1;
         }
+        
 
         hts_set_opt(data[i]->fp, CRAM_OPT_DECODE_MD, 0); // not sure what this does but samtools does it so I guess it's important
 
@@ -352,12 +342,14 @@ int program_main(arguments arguments)
     }
     // check if output exists
     FILE *test_output = fopen(fname.c_str(), "r");
-    if (test_output)
-    {
-        printf("Output file %s already exists!\n", arguments.args[1]);
-        fclose(test_output);
-        return 1;
+    if (test_output) {
+      std::cerr << "Output file already exists: " 
+                << arguments.args[1] 
+                << std::endl;
+      fclose(test_output);
+      return 1;
     }
+    
     // DON'T CLOSE test_output HERE because if you are here, test_output is null
     FILE *output_file = NULL;
     if (arguments.gzipped)
@@ -632,12 +624,15 @@ int program_main(arguments arguments)
 
 // Expose to Rcpp
 // [[Rcpp::export]]
-void rcpp_snp_pileup(std::vector<std::string> args) {
-  arguments parsed_args;
-  parse_arguments(args, parsed_args);
-  int ret_code = program_main(parsed_args);
+void rcpp_snp_pileup(const std::vector<std::string>& input_args) {
+  arguments args;
   
-  if (ret_code != 0) {
+  // Parse the arguments
+  parse_arguments(input_args, args);
+  
+  // Run the main program
+  int status = program_main(args);
+  if (status != 0) {
     Rcpp::stop("Program terminated with errors.");
   }
 }

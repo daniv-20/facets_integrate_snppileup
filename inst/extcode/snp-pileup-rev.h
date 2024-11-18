@@ -18,22 +18,22 @@
 
 using namespace std;
 
-struct arguments {
-	vector<char*> args;
-	bool count_orphans;
-	bool gzipped;
-	BGZF* gzippedPointer;
-	bool ignore_overlaps;
-	int min_base_quality;
-	int min_map_quality;
-	vector<int> min_read_counts;
-	int max_depth;
-	bool progress;
-	int pseudo_snps;
-	bool verbose;
-	int rflag_filter;
-	void (*outFunc)(arguments, string, FILE *);
-};
+// struct arguments {
+// 	vector<char*> args;
+// 	bool count_orphans;
+// 	bool gzipped;
+// 	BGZF* gzippedPointer;
+// 	bool ignore_overlaps;
+// 	int min_base_quality;
+// 	int min_map_quality;
+// 	vector<int> min_read_counts;
+// 	int max_depth;
+// 	bool progress;
+// 	int pseudo_snps;
+// 	bool verbose;
+// 	int rflag_filter;
+// 	void (*outFunc)(arguments, string, FILE *);
+// };
 
 struct file_info {
 	int refs;
