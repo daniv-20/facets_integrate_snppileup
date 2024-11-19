@@ -232,6 +232,7 @@ uint64_t get_snp_count(char *file)
 int program_main(arguments arguments)
 {   
   Rcpp::Rcout << "Debug: enter program main" << std::endl;
+  Rcpp::stop("Debug: Stop entered program main");
     clock_t start = clock();
 
     int i = 0;
@@ -644,7 +645,7 @@ void rcpp_snp_pileup(const std::vector<std::string>& input_args) {
   
   // Run the main program
   Rcpp::Rcout << "Debug: Running main program" << std::endl;
-  Rcpp::stop("Debug: Stop before run main");
+
   int status = program_main(args);
   Rcpp::Rcout << "Debug: Ran main program" << std::endl;
   if (status != 0) {

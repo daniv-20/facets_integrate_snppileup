@@ -1,5 +1,21 @@
 library(tidyverse)
 #library(link2Rhtslib)
+
+help_outfile <- function(filename) {
+  if (file.exists(filename)) {
+    # Rename the file
+    old_filename <- paste0(filename, "_old")
+    file.rename(filename, old_filename)
+    
+    # Delete the renamed file
+    file.remove(old_filename)
+    
+    message("File ", filename, " was renamed to ", old_filename, " and then deleted.")
+  } else {
+    message("File ", filename, " does not exist.")
+  }
+}
+
 Sys.setenv(PATH = paste("G:/Projects/FACETS/htslib-1.21", Sys.getenv("PATH"), sep = ";"))
 Sys.setenv(
   PKG_CPPFLAGS = "-IG:/Projects/FACETS/htslib-1.21",
@@ -24,7 +40,11 @@ datapath ="C:/Users/vaithid1/OneDrive - Memorial Sloan Kettering Cancer Center/R
 
 humanvcf = "C:/Users/vaithid1/OnLaptop/00-common_all.vcf"
 
-input_args = c(humanvcf, file.path(datapath, "snp-pileup-test-r-output.csv"), file.path(datapath,"sorted_c11.bam"))
+outfile =  file.path(datapath, "snp-pileup-test-r-output.csv")
+
+help_outfile(outfile)
+
+input_args = c(humanvcf, outfile, file.path(datapath,"sorted_c11.bam"))
 
 start.time = proc.time()
 
