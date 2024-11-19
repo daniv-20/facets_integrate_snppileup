@@ -17,13 +17,24 @@ test_rhtslib()
 
 Rcpp::sourceCpp("C:/Users/vaithid1/OneDrive - Memorial Sloan Kettering Cancer Center/Repos/facets_integrate_snppileup/inst/extcode/rcpp_vers_snp-pileup-rev.cpp", verbose = TRUE, rebuild = TRUE)
 
+snp_plp_test_rhtslib()
 #snp-pileup <vcf file> <output file> <sequence files...>
 
-input_args = c("../extdata/00-All.vcf", "../extdata/snp-pileup-test-r-output.csv", "../extdata/sorted_c11.bam", "../extdata/sorted_c20.bam")
+datapath ="C:/Users/vaithid1/OneDrive - Memorial Sloan Kettering Cancer Center/Repos/facets_integrate_snppileup/inst/extdata"
+
+humanvcf = "C:/Users/vaithid1/OnLaptop/00-common_all.vcf"
+
+input_args = c(humanvcf, file.path(datapath, "snp-pileup-test-r-output.csv"), file.path(datapath,"sorted_c11.bam"))
+
+start.time = proc.time()
 
 rcpp_snp_pileup(input_args)
 
+end.time = proc.time()
 
+runtime = start.time - end.time
+
+print(paste("Snp_pileup runtime = ", runtime))
 
 
 

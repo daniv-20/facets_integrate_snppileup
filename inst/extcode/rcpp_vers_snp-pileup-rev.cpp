@@ -37,6 +37,7 @@ struct arguments {
 // Parse arguments from R inputs
 // Argument parser
 void parse_arguments(const std::vector<std::string>& input_args, arguments& args) {
+  Rcpp::Rcout << "Debug: Entered parse args" << std::endl;
   if (input_args.size() < 2) {
     Rcpp::stop("Usage: <vcf file> <output file> <sequence files...>");
   }
@@ -122,7 +123,7 @@ static int mplp_func(void *data, bam1_t *b)
 {
     // it seems to me that this function is run once every read, and lets you control if the read should be skipped or not
     // here is where you would put quality checks and things like that
-
+    Rcpp::Rcout << "Debug: entered mplp_func" << std::endl;
     //	printf("hello\n");
     char *ref;
     mplp_aux_t *ma = (mplp_aux_t *)data;
@@ -182,6 +183,7 @@ static int mplp_func(void *data, bam1_t *b)
 static int vcf_chr_to_bam(char *chromosome, char **bam_chrs, int32_t n_targets)
 {
     // try to remove chr prefix if it exists
+    Rcpp::Rcout << "Debug: remove chr prefix if exists" << std::endl;
     if (!strncmp(chromosome, "chr", 3))
     {
         chromosome += 3;
@@ -209,6 +211,7 @@ static int vcf_chr_to_bam(char *chromosome, char **bam_chrs, int32_t n_targets)
 
 uint64_t get_snp_count(char *file)
 {
+  Rcpp::Rcout << "Debug: entered get snp count" << std::endl;
     uint64_t count = 0;
     // load vcf file
     bcf_srs_t *vcfReader = bcf_sr_init();
@@ -227,7 +230,8 @@ uint64_t get_snp_count(char *file)
 }
 
 int program_main(arguments arguments)
-{
+{   
+  Rcpp::Rcout << "Debug: enter program main" << std::endl;
     clock_t start = clock();
 
     int i = 0;
@@ -242,7 +246,9 @@ int program_main(arguments arguments)
     hts_verbose = 1;
 
     // Load VCF file
+    Rcpp::Rcout << "Debug: about to load vcf file" << std::endl;
     bcf_srs_t *vcfReader = bcf_sr_init();
+    Rcpp::Rcout << "Debug: loaded vcf file??" << std::endl;
     if (!bcf_sr_add_reader(vcfReader, arguments.args[0].c_str())) {
       std::cerr << "Failed to read VCF file: " << arguments.args[0]
                 << " (" << bcf_sr_strerror(vcfReader->errnum) << ")" << std::endl;
@@ -251,6 +257,7 @@ int program_main(arguments arguments)
     }
     bcf_hdr_t *vcfHdr = vcfReader->readers[0].header;
     
+    Rcpp::Rcout << "Debug: about to calc snp count" << std::endl;
     uint64_t count = 0;
     if (arguments.progress) {
       std::cout << "Calculating SNP count..." << std::flush;
@@ -259,6 +266,7 @@ int program_main(arguments arguments)
     }
 
     // construct data to pass to pileup engine
+    Rcpp::Rcout << "Debug: construct data to pass to pileup engine" << std::endl;
     mplp_aux_t **data;
     data = (mplp_aux_t **)calloc(n, sizeof(mplp_aux_t *)); // allocate memory for data
     for (i = 0; i < n; ++i)
@@ -318,6 +326,7 @@ int program_main(arguments arguments)
     hdr = data[0]->h;
 
     // start pileup engine
+    Rcpp::Rcout << "Debug: start pileup engine wooooooo" << std::endl;
     iter = bam_mplp_init(n, mplp_func, (void **)data);
     if (!arguments.ignore_overlaps)
     {
@@ -341,6 +350,7 @@ int program_main(arguments arguments)
         arguments.outFunc = gzip_output;
     }
     // check if output exists
+    Rcpp::Rcout << "Debug: check if output exists." << std::endl;
     FILE *test_output = fopen(fname.c_str(), "r");
     if (test_output) {
       std::cerr << "Output file already exists: " 
@@ -627,12 +637,24 @@ int program_main(arguments arguments)
 void rcpp_snp_pileup(const std::vector<std::string>& input_args) {
   arguments args;
   
+  Rcpp::Rcout << "Debug: about to parse args" << std::endl;
   // Parse the arguments
   parse_arguments(input_args, args);
+  Rcpp::Rcout << "Debug: args parsed" << std::endl;
   
   // Run the main program
+  Rcpp::Rcout << "Debug: Running main program" << std::endl;
+  Rcpp::stop("Debug: Stop before run main");
   int status = program_main(args);
+  Rcpp::Rcout << "Debug: Ran main program" << std::endl;
   if (status != 0) {
     Rcpp::stop("Program terminated with errors.");
   }
+}
+
+// [[Rcpp::export]]
+void snp_plp_test_rhtslib() {
+  Rcpp::Rcout << "Htslib linked successfully - snp-pileup!" << std::endl;
+  printf("HTSlib version: %s", hts_version());
+  Rcpp::Rcout << "Debug: dbgs in!! " << std::endl;
 }
