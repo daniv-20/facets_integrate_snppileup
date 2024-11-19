@@ -44,6 +44,10 @@ outfile =  file.path(datapath, "snp-pileup-test-r-output.csv")
 
 help_outfile(outfile)
 
+debug_file = file.path(datapath, "debugrun_consoleout.txt")
+
+sink(debug_file)
+
 input_args = c(humanvcf, outfile, file.path(datapath,"sorted_c11.bam"))
 
 start.time = proc.time()
