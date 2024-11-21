@@ -28,14 +28,14 @@ Sys.setenv(
 ### builds test successfully with actual htslib!!
 
 
-datapath <- "G:/Repos/facets_integrate_snppileup/inst/extdata"
-debug_file <- file.path(datapath, "debugrun_consoleout.txt")
+datapath <- "G:/Repos/VOID_facets_integrate_snppileup/inst/extdata"
+debug_file <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data/test_run_21NOV.txt"
 
 sink(debug_file)
 
 cat("Check built snp-pileup: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
 
-Rcpp::sourceCpp("G:/Repos/facets_integrate_snppileup/inst/extcode/rcpp_vers_snp-pileup-rev.cpp", verbose = TRUE, rebuild = TRUE)
+Rcpp::sourceCpp("G:/Repos/facets_integrate_snppileup_v2/inst/extcode/rcpp_vers_snp-pileup-rev.cpp", verbose = TRUE, rebuild = TRUE)
 
 snp_plp_test_rhtslib()
 # snp-pileup <vcf file> <output file> <sequence files...>
@@ -43,7 +43,7 @@ snp_plp_test_rhtslib()
 humanvcf <- "C:/Users/vaithid1/OnLaptop/00-common_all.vcf"
 # humanvcf <- "G:\\Projects\\FACETS\\00-common_all.vcf"
 
-outfile <- file.path(datapath, "tryagain_21NOV_snp-pileup-test-r-output.csv")
+outfile <- file.path("G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data/test_snpplp_realhtslib.csv")
 
 help_outfile(outfile)
 
