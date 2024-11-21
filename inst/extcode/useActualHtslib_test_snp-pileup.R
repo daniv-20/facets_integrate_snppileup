@@ -28,7 +28,7 @@ Sys.setenv(
 ### builds test successfully with actual htslib!!
 
 
-datapath <- "G:/Repos/VOID_facets_integrate_snppileup/inst/extdata"
+datapath <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data"
 debug_file <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data/test_run_21NOV.txt"
 
 sink(debug_file)
