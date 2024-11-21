@@ -1,0 +1,164 @@
+help_outfile <- function(filename) {
+  if (file.exists(filename)) {
+    # Rename the file
+    old_filename <- paste0(filename, "_old")
+    file.rename(filename, old_filename)
+
+    # Delete the renamed file
+    file.remove(old_filename)
+
+    message("File ", filename, " was renamed to ", old_filename, " and then deleted.")
+  } else {
+    message("File ", filename, " does not exist.")
+  }
+}
+
+Sys.setenv(PATH = paste("G:/Projects/FACETS/htslib-1.21", Sys.getenv("PATH"), sep = ";"))
+Sys.setenv(
+  PKG_CPPFLAGS = "-IG:/Projects/FACETS/htslib-1.21",
+  PKG_LIBS = "-LG:/Projects/FACETS/htslib-1.21 -lhts -LG:/RBuildTools/4.4/mingw_64/lib -lz -lbz2 -llzma -lcurl"
+)
+
+# Compile and load the C++ code
+# Rcpp::sourceCpp("test.cpp", verbose = TRUE, rebuild = TRUE)
+
+# Call the function from your C++ file
+# test_rhtslib()
+
+### builds test successfully with actual htslib!!
+
+
+datapath <- "G:/Repos/facets_integrate_snppileup/inst/extdata"
+debug_file <- file.path(datapath, "debugrun_consoleout.txt")
+
+sink(debug_file)
+
+cat("Check built snp-pileup: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+
+Rcpp::sourceCpp("G:/Repos/facets_integrate_snppileup/inst/extcode/rcpp_vers_snp-pileup-rev.cpp", verbose = TRUE, rebuild = TRUE)
+
+snp_plp_test_rhtslib()
+# snp-pileup <vcf file> <output file> <sequence files...>
+
+humanvcf <- "C:/Users/vaithid1/OnLaptop/00-common_all.vcf"
+# humanvcf <- "G:\\Projects\\FACETS\\00-common_all.vcf"
+
+outfile <- file.path(datapath, "tryagain_21NOV_snp-pileup-test-r-output.csv")
+
+help_outfile(outfile)
+
+input_args <- c(humanvcf, outfile, file.path(datapath, "sorted_c11.bam"))
+
+cat("Starting run: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+
+cat("Goal: Figure out where exactly code is breaking, fix minreadcounts?? \n")
+
+rcpp_snp_pileup(input_args)
+
+cat("Ending run: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+
+
+
+
+## ----------------
+#
+#
+# # Sys.setenv(
+# #   PKG_CPPFLAGS = "-IG:/Projects/FACETS/htslib-1.21",
+# #   PKG_LIBS = "-LG:/Projects/FACETS/htslib-1.21 -lhts -lz -lbz2 -llzma"
+# # )
+#
+# Sys.setenv(
+#   PKG_CPPFLAGS = "-IG:/Projects/FACETS/htslib-1.21",
+#   PKG_LIBS = "-LG:/Projects/FACETS/htslib-1.21 -lhts -LG:/RBuildTools/4.4/mingw_64/lib -lz -lbz2 -llzma -lcurl"
+# )
+#
+#
+# # Compile and load the C++ code
+# Rcpp::sourceCpp("test.cpp", verbose = TRUE, rebuild = TRUE)
+#
+# # Call the function from your C++ file
+# test_rhtslib()
+#
+#
+# Sys.setenv(PATH = paste("G:/Projects/FACETS/htslib-1.21", Sys.getenv("PATH"), sep = ";"))
+#
+#
+# ### builds test successfully with actual htslib!!
+#
+# Rcpp::sourceCpp("C:/Users/vaithid1/OneDrive - Memorial Sloan Kettering Cancer Center/Repos/facets_integrate_snppileup/inst/extcode/rcpp_vers_snp-pileup-rev.cpp", verbose = TRUE, rebuild = TRUE)
+#
+#
+#
+#
+#
+#
+# ## ignore rhtslib for now -------------------
+#
+#
+# # Set environment variables for compilation
+# # Set environment variables for linking and compilation
+# Sys.setenv(
+#   PKG_CPPFLAGS = "-I'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include'",
+#   PKG_LIBS = "-L'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/usrlib/x64' -lhts"
+# )
+#
+#
+# Sys.getenv("PKG_CPPFLAGS")
+# Sys.getenv("PKG_LIBS")
+#
+# Sys.getenv("PATH")
+#
+#
+# ##---------
+# Sys.setenv(
+#   PKG_CPPFLAGS = paste(
+#     "-I'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include'",
+#     "-I'C:/RBuildTools/4.4/mingw_64/include'",
+#     sep = " "
+#   ),
+#   PKG_LIBS = paste(
+#     "-L'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/usrlib/x64' -lhts",
+#     "-L'C:/RBuildTools/4.4/mingw_64/lib' -lz -lbz2 -llzma -lcurl",
+#     sep = " "
+#   )
+# )
+#
+#
+#
+#
+# # Compile and load the C++ code
+# Rcpp::sourceCpp("test.cpp", verbose = TRUE)
+#
+# # Call the function from your C++ file
+# test_rhtslib()
+#
+#
+# Sys.setenv(
+#   PKG_CPPFLAGS = "-I'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include'",
+#   PKG_LIBS = paste(
+#     "-L'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/usrlib/x64'",
+#     "-lhts -lz -lbz2 -llzma -lcurl -lws2_32",
+#     sep = " "
+#   )
+# )
+#
+# Rcpp::sourceCpp("test.cpp", verbose = TRUE)
+# test_rhtslib()
+#
+#
+#
+#
+#
+#
+# ## installed link2Rhtslib
+# ##devtools::install("C:\\Users\\vaithid1\\OneDrive - Memorial Sloan Kettering Cancer Center\\Projects\\FACETS\\link2Rhtslib")
+#
+# # Sys.setenv(
+# #   PKG_CPPFLAGS = "-I'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include'",
+# #   PKG_LIBS = "C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/libs/x64/Rhtslib.dll"
+# # )
+# # Rcpp::sourceCpp("test.cpp", verbose = TRUE)
+# # test_rhtslib()
+#
+# #^^^ works but is missing bcf_sr*

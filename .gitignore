@@ -5,3 +5,12 @@ src/symbols.rds
 .Rproj.user
 .Rhistory
 facets.Rproj
+
+*.txt
+*.csv
+*.vcf
+*.bam
+*.bai
+
+*.vscode
+
