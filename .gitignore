@@ -14,3 +14,4 @@ facets.Rproj
 
 *.vscode
 
+*/test_data/*
