@@ -1,4 +1,6 @@
 ## try build with RHTSlib
+library(Rhtslib)
+
 
 help_outfile <- function(filename) {
   if (file.exists(filename)) {
@@ -15,25 +17,55 @@ help_outfile <- function(filename) {
   }
 }
 
-Sys.setenv(PATH = paste("G:/Projects/FACETS/htslib-1.21", Sys.getenv("PATH"), sep = ";"))
+## - For compile with regular HTSLIB
+#Sys.setenv(PATH = paste("G:/Projects/FACETS/htslib-1.21", Sys.getenv("PATH"), sep = ";"))
+#Sys.setenv(
+#  PKG_CPPFLAGS = "-IG:/Projects/FACETS/htslib-1.21",
+#  PKG_LIBS = "-LG:/Projects/FACETS/htslib-1.21 -lhts -LG:/RBuildTools/4.4/mingw_64/lib -lz -lbz2 -llzma -lcurl"
+#)
+
 Sys.setenv(
-  PKG_CPPFLAGS = "-IG:/Projects/FACETS/htslib-1.21",
-  PKG_LIBS = "-LG:/Projects/FACETS/htslib-1.21 -lhts -LG:/RBuildTools/4.4/mingw_64/lib -lz -lbz2 -llzma -lcurl"
+  PKG_CPPFLAGS = "-I'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include'",
+  PKG_LIBS = paste(
+    "-L'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/usrlib/x64'",
+    "-lhts -lz -lbz2 -llzma -lcurl -lws2_32",
+    sep = " "
+  )
 )
 
+datapath <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data"
+debug_file <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data/test_run_29NOV.txt"
+
+#sink(debug_file)
+
+system.file(package="Rhtslib", "include")
+
+
+## installed link2Rhtslib
+#devtools::install("C:\\Users\\vaithid1\\OneDrive - Memorial Sloan Kettering Cancer Center\\Projects\\FACETS\\link2Rhtslib")
+
+#install Rhtslib
+#devtools::install_github("Bioconductor/Rhtslib")
+
+Sys.setenv(
+  PKG_CPPFLAGS = "-I'C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/include'",
+  PKG_LIBS = "C:/Users/vaithid1/AppData/Local/R/cache/R/renv/library/facets_integrate_snppileup-a88b4cc8/windows/R-4.4/x86_64-w64-mingw32/Rhtslib/libs/x64/Rhtslib.dll"
+)
+Rcpp::sourceCpp("test.cpp", verbose = TRUE)
+test_rhtslib()
+
+#^^^ works but is missing bcf_sr*
+
 # Compile and load the C++ code
-# Rcpp::sourceCpp("test.cpp", verbose = TRUE, rebuild = TRUE)
+Rcpp::sourceCpp("test.cpp", verbose = TRUE, rebuild = TRUE)
 
 # Call the function from your C++ file
-# test_rhtslib()
+test_rhtslib()
 
 ### builds test successfully with actual htslib!!
 
 
-datapath <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data"
-debug_file <- "G:/Repos/facets_integrate_snppileup_v2/inst/extdata/test_data/test_run_21NOV.txt"
 
-sink(debug_file)
 
 cat("Check built snp-pileup: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
 
