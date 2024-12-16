@@ -12,8 +12,8 @@ static const R_FortranMethodDef FortranEntries[] = {
     {NULL, NULL, 0}
 };
 
-void R_init_facets(DllInfo *dll)
-{
-    R_registerRoutines(dll, NULL, NULL, FortranEntries, NULL);
-    R_useDynamicSymbols(dll, FALSE);
-}
+// void R_init_facets(DllInfo *dll)
+// {
+//     R_registerRoutines(dll, NULL, NULL, FortranEntries, NULL);
+//     R_useDynamicSymbols(dll, FALSE);
+// }
