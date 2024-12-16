@@ -5,3 +5,13 @@ src/symbols.rds
 .Rproj.user
 .Rhistory
 facets.Rproj
+*.renviron
+*.sl
+*.dll
+*.dylib
+*.a
+*.directory
+*.settings
+*.rhistory
+*.rproj.user
+
