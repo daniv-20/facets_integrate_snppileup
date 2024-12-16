@@ -14,4 +14,8 @@ facets.Rproj
 *.settings
 *.rhistory
 *.rproj.user
+checkso.R
+remove_f.R
+*.log
+*.out
 
