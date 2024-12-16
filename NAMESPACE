@@ -1,5 +1,5 @@
 useDynLib(facets, .registration = TRUE)
-##useDynLib(facets, '_facets_htslib_version')
+
 
 importFrom("Rcpp","sourceCpp")
 export("htslib_version")
