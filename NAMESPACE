@@ -1,10 +1,12 @@
 useDynLib(facets, .registration = TRUE)
-import(stats,graphics)
 export(htslib_version)
 export(run_snp_pileup)
 export(run_snp_pileup_logic)
+import(stats,graphics)
+
 importFrom(Rcpp,sourceCpp)
 importFrom("utils", "read.csv")
 importFrom("grDevices", "colorRampPalette", "rainbow")
 importFrom("pctGCdata", "getGCpct")
 export("readSnpMatrix", "preProcSample", "procSample", "emcncf", "emcncf2", "plotSample","logRlogORspider","rePreProcSample")
+
